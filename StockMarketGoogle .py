@@ -15,19 +15,18 @@ dataset = pd.read_csv('Google_Stock_Price_Train.csv',index_col="Date",parse_date
 
 #%%
 dataset.head()
-
-
+#%%
+dataset.describe()
+#%%
+dataset.columns
 #%%
 dataset.isna().any()
-
-
 #%%
 dataset.info()
-
-
 #%%
 dataset['Open'].plot(figsize=(16,6))
-
+#%%
+dataset['Close'] = pd.to_numeric(dataset.Close)
 
 #%%
 # convert column "a" of a DataFrame
@@ -144,8 +143,8 @@ dataset_test.head()
 
 #%%
 dataset_test.info()
-
-
+#%%
+dataset.columns
 #%%
 dataset_test["Volume"] = dataset_test["Volume"].str.replace(',', '').astype(float)
 
