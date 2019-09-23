@@ -26,7 +26,7 @@ dataset.info()
 #%%
 dataset['Open'].plot(figsize=(16,6))
 #%%
-dataset['Close'] = pd.to_numeric(dataset.Close)
+#dataset['Close'] = pd.to_numeric(dataset.Close)
 
 #%%
 # convert column "a" of a DataFrame
@@ -87,43 +87,64 @@ X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
 # Importing the Keras libraries and packages
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Input
 from keras.layers import LSTM
 from keras.layers import Dropout
+from keras import Model
 
 
 #%%
+Input_lstm  = Input(shape=(X_train.shape[1],1))
+
+L1          = LSTM(50,return_sequences=True)(Input_lstm)
+D1          = Dropout(0.2)(L1)
+
+L2          = LSTM(50,return_sequences=True)(D1)
+D2          = Dropout(0.2)(L2)
+
+L3          = LSTM(50,return_sequences=True)(D2)
+D3          = Dropout(0.2)(L3)
+
+L4          = LSTM(50,return_sequences=True)(D3)
+D4          = Dropout(0.2)(L4)
+
+Out         = LSTM(1)(D4)
+
+model       = Model(inputs=Input_lstm,outputs=Out)
+model.compile(optimizer='adam',loss='mean_squared_error')
+model.fit(X_train,y_train,epochs=100,batch_size=32)
+
 # Initialising the RNN
-regressor = Sequential()
+# regressor = Sequential()
 
 
-#%%
-# Adding the first LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1)))
-regressor.add(Dropout(0.2))
+# #%%
+# # Adding the first LSTM layer and some Dropout regularisation
+# regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1)))
+# regressor.add(Dropout(0.2))
 
-# Adding a second LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True))
-regressor.add(Dropout(0.2))
+# # Adding a second LSTM layer and some Dropout regularisation
+# regressor.add(LSTM(units = 50, return_sequences = True))
+# regressor.add(Dropout(0.2))
 
-# Adding a third LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50, return_sequences = True))
-regressor.add(Dropout(0.2))
+# # Adding a third LSTM layer and some Dropout regularisation
+# regressor.add(LSTM(units = 50, return_sequences = True))
+# regressor.add(Dropout(0.2))
 
-# Adding a fourth LSTM layer and some Dropout regularisation
-regressor.add(LSTM(units = 50))
-regressor.add(Dropout(0.2))
+# # Adding a fourth LSTM layer and some Dropout regularisation
+# regressor.add(LSTM(units = 50))
+# regressor.add(Dropout(0.2))
 
-# Adding the output layer
-regressor.add(Dense(units = 1))
+# # Adding the output layer
+# regressor.add(Dense(units = 1))
 
 
-#%%
-# Compiling the RNN
-regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+# #%%
+# # Compiling the RNN
+# regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
-# Fitting the RNN to the Training set
-regressor.fit(X_train, y_train, epochs = 100, batch_size = 32)
+# # Fitting the RNN to the Training set
+# regressor.fit(X_train, y_train, epochs = 100, batch_size = 32)
 
 
 #%%
@@ -169,7 +190,7 @@ for i in range(60, 80):
     X_test.append(inputs[i-60:i, 0])
 X_test = np.array(X_test)
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-predicted_stock_price = regressor.predict(X_test)
+predicted_stock_price = model.predict(X_test)
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 
 
