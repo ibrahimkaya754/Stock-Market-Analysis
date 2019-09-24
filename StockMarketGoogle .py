@@ -252,10 +252,10 @@ def model_(x):
 #%%
 parameters = {}
 
-list_unit  = [20,40,60,80,100]
-list_drop  = [0.1,0.2]
-list_layer = [2,3,4,5]
-list_epoch = [100,200]
+list_unit  = [50,100,150]
+list_drop  = [0.15,0.30]
+list_layer = [3,5,7]
+list_epoch = [150,300]
 list_batch = [32,64]
 
 for unit in list_unit:
