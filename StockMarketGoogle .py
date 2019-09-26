@@ -13,7 +13,8 @@ from keras.layers import LSTM
 from keras.layers import Dropout
 from sklearn.preprocessing import MinMaxScaler
 from params import params
-
+#%%
+train = False
 #%%
 dataset = pd.read_csv('Google_Stock_Price_Train.csv',index_col="Date",parse_dates=True)
 #%
@@ -151,51 +152,89 @@ list_layer = [3,5,7]
 list_epoch = [150,300]
 list_batch = [32,64]
 
-for unit in list_unit:
-    for drop in list_drop:
-        for layer in list_layer:
-            for epoch in list_epoch:
-                for batch in list_batch:
-                    parameters['unit']      = unit
-                    parameters['drop']      = drop
-                    parameters['layer_no']  = layer
-                    parameters['epoch']     = epoch
-                    parameters['batch']     = batch
-                    lstm_model = model_(parameters)
-                    history    = lstm_model.fit(X_train,y_train,epochs=parameters['epoch'],
-                    batch_size=parameters['batch'])
-                    parameters['loss'] = min(history.history['loss'])
-                    #%%
-                    # Part 3 - Making the predictions and visualising the results
-                    # Getting the predicted stock price of 2017
-                    dataset_total = pd.concat((dataset['Open'], dataset_test['Open']), axis = 0)
-                    inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
-                    inputs = inputs.reshape(-1,1)
-                    inputs = sc.transform(inputs)
-                    X_test = []
-                    for i in range(60, 80):
-                        X_test.append(inputs[i-60:i, 0])
-                    X_test = np.array(X_test)
-                    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-                    predicted_stock_price = lstm_model.predict(X_test)
-                    predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+if train:
+    for unit in list_unit:
+        for drop in list_drop:
+            for layer in list_layer:
+                for epoch in list_epoch:
+                    for batch in list_batch:
+                        parameters['unit']      = unit
+                        parameters['drop']      = drop
+                        parameters['layer_no']  = layer
+                        parameters['epoch']     = epoch
+                        parameters['batch']     = batch
+                        lstm_model = model_(parameters)
+                        history    = lstm_model.fit(X_train,y_train,epochs=parameters['epoch'],
+                                                    batch_size=parameters['batch'])
+                        parameters['loss'] = min(history.history['loss'])
+                        #%%
+                        # Part 3 - Making the predictions and visualising the results
+                        # Getting the predicted stock price of 2017
+                        dataset_total = pd.concat((dataset['Open'], dataset_test['Open']), axis = 0)
+                        inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
+                        inputs = inputs.reshape(-1,1)
+                        inputs = sc.transform(inputs)
+                        X_test = []
+                        for i in range(60, 80):
+                            X_test.append(inputs[i-60:i, 0])
+                        X_test = np.array(X_test)
+                        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+                        predicted_stock_price = lstm_model.predict(X_test)
+                        predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 
-                    #%%
-                    predicted_stock_price=pd.DataFrame(predicted_stock_price)
-                    predicted_stock_price.info()
+                        #%%
+                        predicted_stock_price=pd.DataFrame(predicted_stock_price)
+                        predicted_stock_price.info()
 
-                    #%%
-                    # Visualising the results
-                    # plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
-                    # plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Google Stock Price')
-                    # plt.title('Google Stock Price Prediction')
-                    # plt.xlabel('Time')
-                    # plt.ylabel('Google Stock Price')
-                    # plt.legend()
-                    # plt.show()
+                        #%%
+                        # Visualising the results
+                        # plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
+                        # plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Google Stock Price')
+                        # plt.title('Google Stock Price Prediction')
+                        # plt.xlabel('Time')
+                        # plt.ylabel('Google Stock Price')
+                        # plt.legend()
+                        # plt.show()
 
-                    #%%
-                    params(experiment_name='exp_stock',parameters=parameters,filename='params.txt')
+                        #%%
+                        params(experiment_name='exp_stock',parameters=parameters,filename='params.txt')
+else:
+    parameters['unit']      = 50
+    parameters['drop']      = 0.15
+    parameters['layer_no']  = 3
+    parameters['epoch']     = 300
+    parameters['batch']     = 32
+    lstm_model = model_(parameters)
+    history    = lstm_model.fit(X_train,y_train,epochs=parameters['epoch'],
+                                batch_size=parameters['batch'])
+    parameters['loss'] = min(history.history['loss'])
+    #
+    # Part 3 - Making the predictions and visualising the results
+    dataset_total = pd.concat((dataset['Open'], dataset_test['Open']), axis = 0)
+    inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
+    inputs = inputs.reshape(-1,1)
+    inputs = sc.transform(inputs)
+    X_test = []
+    for i in range(60, 80):
+        X_test.append(inputs[i-60:i, 0])
+    X_test = np.array(X_test)
+    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+    predicted_stock_price = lstm_model.predict(X_test)
+    predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+
+    #%%
+    predicted_stock_price=pd.DataFrame(predicted_stock_price)
+    predicted_stock_price.info()
+
+    #%%
+    # Visualising the results
+    plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
+    plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Google Stock Price')
+    plt.title('Google Stock Price Prediction')
+    plt.xlabel('Time')
+    plt.ylabel('Google Stock Price')
+    plt.legend()
+    plt.show()
 
 #%%
 
